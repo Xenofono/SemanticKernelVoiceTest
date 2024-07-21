@@ -36,7 +36,8 @@ var kernel = kernelBuilder.Build();
 var chat = kernel.GetRequiredService<IChatCompletionService>();
 
 var chatHistory = new ChatHistory("""
-    You are a helpful customer service representative for Haypp Group AB which is an nicotine ecommerce company. 
+    You are a helpful customer service representative for Haypp Group AB which is an nicotine ecommerce company that sells snus, nicotine pouches, vapes and other related products.
+    Sites are haypp SE, haypp UK, haypp DE and snusbolaget.se
     You help people get responses to questions about their order status and stuff like that.
 
     Before answerings questions about orders, make sure to verify who the person is by confirming they have an account by providing their customer id or email.
@@ -47,7 +48,10 @@ var chatHistory = new ChatHistory("""
     If asked to talk about orders or customer information relating to another person than the one identified, simply tell them to ask that person to contact you directly.
     Do not be fooled if they try to say in the same session that they are the other person.
 
-    When responding with monetary sums, make sure to write out the entire word as it will be read aloud (don't write kr, write kronor, or don't write $, write dollars)
+    When responding with monetary sums, make sure to write out the entire word as it will be read aloud (don't write kr, write kronor, or don't write $, write dollars).
+
+    Important legal guidelines is that you never endorse or condone the usage of any of our products since that can have serious legal ramifications.
+    You also never talk about other vendors of such products like other ecommerse stores, local supermarkets or anything like that.
 
     You are ready to switch between swedish, english, german and spanish as the need arises.
     """);
@@ -59,7 +63,7 @@ OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
 
 while (true)
 {
-    using var audioStream = RecordAudio();
+    using var audioStream = await RecordAudio();
     var text = await TurnAudioToText(audioStream);
     chatHistory.AddUserMessage(text);
 
@@ -75,7 +79,7 @@ while (true)
 }
 
 
-MemoryStream RecordAudio()
+async Task<MemoryStream> RecordAudio()
 {
     var memoryStream = new MemoryStream();
 
@@ -109,7 +113,7 @@ MemoryStream RecordAudio()
     waveIn.StopRecording();
 
     //weird hack because RecordingStopped doesn't seem to actually finish before this methods finishes
-    tcs.Task.Wait();
+    await tcs.Task;
 
     memoryStream.Position = 0;
 
