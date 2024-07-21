@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AudioToText;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -10,14 +11,27 @@ using NAudio.Utils;
 using NAudio.Wave;
 using SemanticKernelVoiceTest;
 using System.Media;
+using System.Reflection;
 
 var builder = new ConfigurationBuilder()
                .SetBasePath(AppContext.BaseDirectory)
-               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-               .AddUserSecrets<Program>();
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+#if DEBUG
+builder.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
+#endif
 
 
 var configuration = builder.Build();
+
+using var loggerFactory = LoggerFactory.Create(loggingBuilder =>
+{
+    loggingBuilder.AddConsole();
+    loggingBuilder.AddConfiguration(configuration.GetSection("Logging"));
+});
+
+var logger = loggerFactory.CreateLogger<Program>();
+
 
 var apiKey = configuration["OpenAIServiceOptions:ApiKey"];
 
