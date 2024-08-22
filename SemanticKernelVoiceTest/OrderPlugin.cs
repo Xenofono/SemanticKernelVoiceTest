@@ -29,14 +29,16 @@ public class OrderPlugin
                 { 1002, new Order { OrderId = 1002, IsDelivered = false, DeliveryHistory = new List<string> { "Order placed", "Shipped", "In Transit - Inväntar utkörning i Västberga" }, TotalSum = 49.99m } },
                 { 1003, new Order { OrderId = 1003, IsDelivered = true, DeliveryHistory = new List<string> { "Order placed", "Shipped", "Delivered" }, TotalSum = 29.99m } },
                 { 1004, new Order { OrderId = 1004, IsDelivered = true, DeliveryHistory = new List<string> { "Order placed", "Shipped", "Delivered" }, TotalSum = 79.99m } },
-                { 1005, new Order { OrderId = 1005, IsDelivered = false, DeliveryHistory = new List<string> { "Order placed" }, TotalSum = 59.99m } }
-            };
+                { 1005, new Order { OrderId = 1005, IsDelivered = false, DeliveryHistory = new List<string> { "Order placed" }, TotalSum = 59.99m } },
+                { 1010, new Order { OrderId = 1010, IsDelivered = false, DeliveryHistory = new List<string> { "Order placed", "Shipped", "In Transit - Inväntar utkörning i Sundsvalls Postterminal" }, TotalSum = 150m } },
+			};
 
         // Hard-coded dictionary of orders by customer ID
         _ordersByCustomerId = new Dictionary<int, List<Order>>
             {
                 { 123, new List<Order> { _ordersById[1001], _ordersById[1002], _ordersById[1003], _ordersById[1004], _ordersById[1005] } },
-                { 999, new List<Order>() } // No orders for this customer
+                { 999, new List<Order>() }, // No orders for this customer
+                { 500, new List<Order>{ _ordersById[1010] } }
             };
     }
     [KernelFunction("get_order_by_id")]
@@ -53,6 +55,6 @@ public class OrderPlugin
     public List<Order>? GetOrdersByCustomerId(int customerId)
     {
         _ordersByCustomerId.TryGetValue(customerId, out var orders);
-        return orders ?? new List<Order>();
+        return orders ?? [];
     }
 }

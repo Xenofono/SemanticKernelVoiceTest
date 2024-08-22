@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Azure;
 
 namespace SemanticKernelVoiceTest;
 
@@ -17,7 +18,7 @@ public class AudioService
 {
     public Kernel Kernel { get;  }
 
-    public AudioService(string apiKey)
+    public AudioService(string apiKey, string emailConnectionString)
     {
         var kernelBuilder = Kernel.CreateBuilder()
                     .AddOpenAIChatCompletion("gpt-4o-mini", apiKey)
@@ -25,7 +26,7 @@ public class AudioService
                     .AddOpenAITextToAudio("tts-1", apiKey);
 
         kernelBuilder.Plugins.AddFromType<OrderPlugin>();
-        kernelBuilder.Plugins.AddFromType<CustomerPlugin>();
+        kernelBuilder.Plugins.AddFromObject(new CustomerPlugin(emailConnectionString), "CustomerPlugin");
         Kernel = kernelBuilder.Build();
     }
 

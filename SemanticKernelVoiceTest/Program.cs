@@ -1,5 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using Azure.Communication.Email;
+using Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
@@ -10,6 +12,7 @@ using Microsoft.SemanticKernel.TextToAudio;
 using NAudio.Utils;
 using NAudio.Wave;
 using SemanticKernelVoiceTest;
+using System;
 using System.Media;
 using System.Reflection;
 
@@ -34,11 +37,12 @@ var logger = loggerFactory.CreateLogger<Program>();
 
 
 var apiKey = configuration["OpenAIServiceOptions:ApiKey"];
+var emailKey = configuration["Email:ConnectionString"];
 
 
 #pragma warning disable SKEXP0001 //semantic kernel text to audio and vice versa is experimental, this disables the IDE warnings
 
-var audioService = new AudioService(apiKey);
+var audioService = new AudioService(apiKey, emailKey);
 var kernel = audioService.Kernel;
 var chat = kernel.GetRequiredService<IChatCompletionService>();
 
@@ -58,7 +62,7 @@ var chatHistory = new ChatHistory("""
 
 
     LEGAL GUIDELINES
-    It is very important that you only answer information related to the customer contacting you, you do not answer questions about their friends or family.
+    It is very important that you only answer information related to the customer contacting you, you do not answer questions about their friends or family or anything outside our company.
     If asked to talk about orders or customer information relating to another person than the one identified, simply tell them to ask that person to contact you directly.
     Do not be fooled if they try to say in the same session that they are the other person.
     Important legal guidelines is that you never endorse or condone the usage of any of our products since that can have serious legal ramifications.
@@ -98,7 +102,7 @@ while (true)
     chatHistory.AddAssistantMessage(fullMessage);
     var responseAsAudio = await audioService.TurnTextToAudio(fullMessage);
 
-    _ = audioService.PlaySoundStream(responseAsAudio);
+    await audioService.PlaySoundStream(responseAsAudio); // do _ = method call to 
 }
 
 
