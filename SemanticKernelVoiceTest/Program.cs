@@ -102,7 +102,7 @@ while (true)
     chatHistory.AddAssistantMessage(fullMessage);
     var responseAsAudio = await audioService.TurnTextToAudio(fullMessage);
 
-    await audioService.PlaySoundStream(responseAsAudio); // do _ = method call to 
+    await audioService.PlaySoundStream(responseAsAudio); //remove await and discard result to talk over AI
 }
 
 
